@@ -1,0 +1,23 @@
+//
+// Created by ben on 05/06/25.
+//
+
+#ifndef MOVE_H
+#define MOVE_H
+
+#include <ostream>
+
+struct Move {
+    int from;
+    int to;
+    char promotionPiece;
+    friend std::ostream& operator<<(std::ostream& os, const Move& m);
+};
+
+struct MoveEval {
+    Move move;
+    bool mateFound;
+    float eval;
+};
+
+#endif //MOVE_H
