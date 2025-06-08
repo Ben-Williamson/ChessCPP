@@ -11,11 +11,6 @@
 #include <iostream>
 #include <unordered_set>
 
-// How does this work then?
-// Generate every possible position for a rook
-// Generate every possible combination of blockers for that rook
-// Then do a * magic >> (64-n) and store the result.
-// Increment magic if the result had been found before.
 
 uint64_t random_uint64() {
     uint64_t u1, u2, u3, u4;
@@ -26,6 +21,45 @@ uint64_t random_uint64() {
 
 MagicSearch::MagicSearch() {
 
+}
+
+uint64_t MagicSearch::FindMagicForBitboards(int num_bitboards, const Bitboard* bitboards, int* shift) {
+    bool searching;
+    uint64_t magic;
+
+    int bits_in_key = (int)log2(num_bitboards);
+
+    do {
+        searching = false;
+        bool* seen = (bool*)calloc(num_bitboards, sizeof(bool));
+
+        magic = random_uint64() & random_uint64() & random_uint64();
+
+        // int i = 0;
+        // do {
+        //     magic = random_uint64() & random_uint64() & random_uint64();
+        //
+        //     Bitboard top_bits = magic & 0xFF00000000000000ULL;
+        //
+        //     for (; top_bits != 0; i += (int)(top_bits & 1ULL))
+        //         top_bits >>= 1;
+        // } while (i < 6);
+
+        for (int i = 0; i < num_bitboards; i++) {
+            uint64_t key = (bitboards[i] * magic) >> (64 - bits_in_key);
+
+            if (seen[key]) {
+                searching = true;
+                break;
+            }
+            seen[key] = true;
+        }
+        free(seen);
+    } while (searching);
+
+    *shift = 64 - bits_in_key;
+
+    return magic;
 }
 
 int MagicSearch::GenerateAllRookBlockers(Bitboard square, Bitboard *bitboards) {
@@ -80,45 +114,6 @@ int MagicSearch::GenerateAllRookBlockers(Bitboard square, Bitboard *bitboards) {
     return count;
 }
 
-uint64_t MagicSearch::FindMagicForBitboards(int num_bitboards, const Bitboard* bitboards, int* shift) {
-    bool searching;
-    uint64_t magic;
-
-    int bits_in_key = (int)log2(num_bitboards);
-
-    do {
-        searching = false;
-        bool* seen = (bool*)calloc(num_bitboards, sizeof(bool));
-
-        magic = random_uint64() & random_uint64() & random_uint64();
-
-        // int i = 0;
-        // do {
-        //     magic = random_uint64() & random_uint64() & random_uint64();
-        //
-        //     Bitboard top_bits = magic & 0xFF00000000000000ULL;
-        //
-        //     for (; top_bits != 0; i += (int)(top_bits & 1ULL))
-        //         top_bits >>= 1;
-        // } while (i < 6);
-
-        for (int i = 0; i < num_bitboards; i++) {
-            uint64_t key = (bitboards[i] * magic) >> (64 - bits_in_key);
-
-            if (seen[key]) {
-                searching = true;
-                break;
-            }
-            seen[key] = true;
-        }
-        free(seen);
-    } while (searching);
-
-    *shift = 64 - bits_in_key;
-
-    return magic;
-}
-
 Bitboard MagicSearch::CalculateRookMoves(Bitboard square, Bitboard blockers) {
     const int square_col = (int)log2(square) % 8;
     const int square_row = (int)log2(square) / 8;
@@ -170,7 +165,63 @@ Bitboard MagicSearch::CalculateRookMask(Bitboard square) {
         move_destinations |= destination;
     }
 
-    return move_destinations;
+    return move_destinations & ~square;
+}
+
+int MagicSearch::GenerateAllBishopBlockers(Bitboard square, Bitboard *bitboards) {
+    Bitboard mask = CalculateBishopMask(square);
+
+    for (int i = 0; i < 1ULL << std::popcount(mask); i++) {
+        bitboards[i] = _pdep_u64(i, mask);
+    }
+
+    return 1ULL << std::popcount(mask);
+}
+
+Bitboard MagicSearch::CalculateBishopMoves(Bitboard square, Bitboard blockers) {
+    const Bitboard edge = 0xff818181818181ff;
+
+    const int square_col = (int)log2(square) % 8;
+    const int square_row = (int)log2(square) / 8;
+
+    Bitboard move_destinations = 0ULL;
+
+    for (int x_delta = -1; x_delta <= 1; x_delta+=2) {
+        for (int y_delta = -1; y_delta <= 1; y_delta+=2) {
+            for (int i = 1; i < 8; i++) {
+                if (square_col + y_delta * i < 0) break;
+                if (square_row + x_delta * i < 0) break;
+                if (square_col + y_delta * i > 7) break;
+                if (square_row + x_delta * i > 7) break;
+                Bitboard destination = (1ULL << (square_col + y_delta * i)) << ((square_row + x_delta * i) * 8);
+                move_destinations |= destination;
+
+                if (destination & blockers || destination & edge) break;
+            }
+        }
+    }
+    return move_destinations & ~square;
+}
+
+Bitboard MagicSearch::CalculateBishopMask(Bitboard square) {
+    Bitboard edge_of_board = 0xff818181818181ff;
+
+    const int square_col = (int)log2(square) % 8;
+    const int square_row = (int)log2(square) / 8;
+
+    Bitboard move_destinations = 0ULL;
+
+    for (int x_delta = -1; x_delta <= 1; x_delta+=2) {
+        for (int y_delta = -1; y_delta <= 1; y_delta+=2) {
+            for (int i = 1; i < 8; i++) {
+                Bitboard destination = (1ULL << (square_col + y_delta * i)) << ((square_row + x_delta * i) * 8);
+                move_destinations |= destination;
+                if (destination & edge_of_board) break;
+            }
+        }
+    }
+
+    return move_destinations & ~square & ~edge_of_board;
 }
 
 MagicBitboardSet MagicSearch::GenerateRookBitboardSet() {
@@ -195,142 +246,41 @@ MagicBitboardSet MagicSearch::GenerateRookBitboardSet() {
             rookDictionary.attacks[i][key] = CalculateRookMoves(search_square, bitboards[j]);
         }
     }
-
-
-
     delete[] bitboards;
-
     return rookDictionary;
 }
 
-int MagicSearch::doit() {
-    GenerateRookBitboardSet();
+MagicBitboardSet MagicSearch::GenerateBishopBitboardSet() {
+    MagicBitboardSet bishopDictionary{};
+
+    Bitboard* bitboards = new Bitboard[4096];
+    int shift;
+
+    for (int i = 0; i < 64; i++) {
+        Bitboard search_square = 1ULL << i;
+        int num_bitboards = GenerateAllBishopBlockers(search_square, bitboards);
+        uint64_t magic = FindMagicForBitboards(num_bitboards, bitboards, &shift);
+
+        bishopDictionary.masks[i]   = CalculateBishopMask(search_square);
+        bishopDictionary.magics[i]  = magic;
+        bishopDictionary.shifts[i]  = shift;
+        bishopDictionary.attacks[i] = new Bitboard[num_bitboards];
+
+        for (int j = 0; j < num_bitboards; j++) {
+            int key = (bitboards[j] * magic) >> shift;
+
+            bishopDictionary.attacks[i][key] = CalculateBishopMoves(search_square, bitboards[j]);
+        }
+    }
+    delete[] bitboards;
+    return bishopDictionary;
 }
 
 
-// int MagicSearch::doit() {
-//     Bitboard rookA1 = 1;
-//
-//     int bits_used = 12;
-//
-//     bool seen[1ULL << bits_used];
-//     for (int i = 0; i < 1ULL << bits_used; i++) {
-//         seen[i] = false;
-//     }
-//
-//     int shift_amount = 64 - bits_used;
-//
-//     search_start:
-//     uint64_t count = 0;
-//     uint64_t magic = random_uint64() & random_uint64() & random_uint64();
-//
-//     int best = 0;
-//
-//
-//     bool found = false;
-//     while (not found) {
-//         found = true;
-//
-//         for (int fileBlockers = 1; fileBlockers < 1ULL << 6; fileBlockers++) {
-//             const Bitboard justFileBlockers = _pdep_u64(fileBlockers, 0x1010101010100);
-//             for (int rankBlockers = 1; rankBlockers < 1ULL << 6; rankBlockers++) {
-//                 const Bitboard rankAndFileBlockers = (rankBlockers << 1) | justFileBlockers;
-//
-//                 const uint64_t key = (rankAndFileBlockers * magic) >> shift_amount;
-//
-//                 count++;
-//
-//                 if (seen[key]) {
-//                     if (count > best) {
-//                         std::cout << std::hex << magic << " failed " << std::dec << count << std::endl;
-//                         best = count;
-//                     }
-//                     found = false;
-//                     magic = random_uint64() & random_uint64() & random_uint64();
-//                     count = 0;
-//                     for (int i = 0; i < 1ULL << 12; i++) {
-//                         seen[i] = false;
-//                     }
-//                     goto endloop;
-//                 }
-//                 seen[key] = true;
-//             }
-//         }
-//         endloop:
-//     }
-//
-//     std::cout << "Found perfect magic: " << magic << " for shift " << shift_amount << std::endl;
-//
-//     return 0;
-// }
 
-// int MagicSearch::doit() {
-//     Bitboard rookA1 = 1;
-//
-//     const int shift_amount = 52;
-//
-//     std::unordered_set<uint64_t> seen;
-//     seen.reserve((1ULL << 6) * (1ULL << 6));
-//
-//     uint64_t count = 0;
-//     uint64_t magic = 4620710844240757761;
-//
-//     for (int fileBlockers = 1; fileBlockers < 1ULL << 6; fileBlockers++) {
-//         const Bitboard justFileBlockers = _pdep_u64(fileBlockers, 0x1010101010100);
-//         for (int rankBlockers = 1; rankBlockers < 1ULL << 6; rankBlockers++) {
-//             const Bitboard rankAndFileBlockers = (rankBlockers << 1) | justFileBlockers;
-//
-//             const uint64_t key = (rankAndFileBlockers * magic) >> shift_amount;
-//             printBitboard(rankAndFileBlockers);
-//             // std::cout << " key: " << key << std::endl;
-//             count++;
-//
-//             if (seen.contains(key)) {
-//                 std::cout << "INVALID MAGIC!" << std::endl;
-//                 return 1;
-//             }
-//             seen.insert(key);
-//         }
-//     }
-//     return 0;
-// }
+int MagicSearch::doit() {
+    GenerateRookBitboardSet();
+    GenerateBishopBitboardSet();
 
-
-// Found perfect magic: 1 for shift 0
-// Found perfect magic: 1 for shift 1
-// Found perfect magic: 2 for shift 2
-// Found perfect magic: 4 for shift 3
-// Found perfect magic: 8 for shift 4
-// Found perfect magic: 16 for shift 5
-// Found perfect magic: 32 for shift 6
-// Found perfect magic: 63 for shift 7
-// Found perfect magic: 126 for shift 8
-// Found perfect magic: 252 for shift 9
-// Found perfect magic: 504 for shift 10
-// Found perfect magic: 1008 for shift 11
-// Found perfect magic: 2016 for shift 12
-// Found perfect magic: 4032 for shift 13
-// Found perfect magic: 8064 for shift 14
-// Found perfect magic: 16127 for shift 15
-// Found perfect magic: 32254 for shift 16
-// Found perfect magic: 64508 for shift 17
-// Found perfect magic: 129016 for shift 18
-// Found perfect magic: 258032 for shift 19
-// Found perfect magic: 516064 for shift 20
-// Found perfect magic: 1032128 for shift 21
-// Found perfect magic: 2064256 for shift 22
-// Found perfect magic: 4128512 for shift 23
-// Found perfect magic: 8257023 for shift 24
-// Found perfect magic: 16514046 for shift 25
-// Found perfect magic: 33028092 for shift 26
-// Found perfect magic: 66056184 for shift 27
-// Found perfect magic: 132112368 for shift 28
-// Found perfect magic: 264224736 for shift 29
-// Found perfect magic: 528449472 for shift 30
-// Found perfect magic: 1056898944 for shift 31
-// Found perfect magic: 2113797888 for shift 32
-// Found perfect magic: 4227595776 for shift 33
-// Found perfect magic: 8455191552 for shift 34
-// Found perfect magic: 16910383104 for shift 35
-// Found perfect magic: 33820766208 for shift 36
-// Found perfect magic: 67641532416 for shift 37
+    return 0;
+}

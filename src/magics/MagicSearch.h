@@ -19,6 +19,7 @@ struct MagicBitboardSet {
 
 struct AllMagicBitboards {
     MagicBitboardSet rookMagicBitboard;
+    MagicBitboardSet bishopMagicBitboard;
 };
 
 inline void printBitboard(const Bitboard& b) {
@@ -45,9 +46,19 @@ public:
 
     uint64_t CalculateRookMask(uint64_t square);
 
+    int GenerateAllBishopBlockers(Bitboard square, Bitboard *bitboards);
+
+    Bitboard CalculateBishopMoves(Bitboard square, Bitboard blockers);
+
+    Bitboard CalculateBishopMask(Bitboard square);
+
     void BuildRookDictionary(uint64_t search_square, uint64_t magic, int num_bitboards, const uint64_t *bitboards);
 
     MagicBitboardSet GenerateRookBitboardSet();
+
+    MagicBitboardSet GenerateBishopBitboardSet();
+
+    MagicBitboardSet GenerateBishopSet();
 
     int doit();
 };

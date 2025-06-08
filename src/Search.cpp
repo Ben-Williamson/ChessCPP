@@ -5,7 +5,7 @@
 #include "MoveList.h"
 
 constexpr float MATE_SCORE = 1'000'000.0f;
-constexpr int   DEFAULT_DEPTH = 4;
+constexpr int   DEFAULT_DEPTH = 2;
 
 
 // -----------------------------------------------------------------------------

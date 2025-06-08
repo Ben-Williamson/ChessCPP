@@ -29,6 +29,7 @@ cli_wrapper::cli_wrapper() {
     MagicSearch magic_search;
 
     magicBitboards.rookMagicBitboard = magic_search.GenerateRookBitboardSet();
+    magicBitboards.bishopMagicBitboard = magic_search.GenerateBishopBitboardSet();
 
     board.SetMagicBitboards(&magicBitboards);
 }
@@ -78,6 +79,17 @@ int cli_wrapper::parse_args(int argc, char* argv[]) {
 int cli_wrapper::doit() {
     std::vector<MoveEval> PV;
     searcher.FindBestMove(board, PV);
+
+    // std::cout << board << std::endl;
+    //
+    // MoveList moves;
+    // int total = board.GetAllMoves(moves);
+    //
+    // for (int i = 0; i < total; i++) {
+    //     std::cout << moves.list[i] << std::endl;
+    // }
+    //
+    // return 0;
 
     if (mateIn) {
         int mate_in = 0;

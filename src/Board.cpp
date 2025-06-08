@@ -104,7 +104,9 @@ bool Board::KingInCheck() {
     after_move.GetPseudoMoves(opponent_moves);
 
     for (Move om: opponent_moves) {
-        if (om.to == king_index) return true;
+        if (om.to == king_index) {
+            return true;
+        }
     }
     return false;
 }
@@ -143,7 +145,7 @@ int Board::GetAllMoves(MoveList& moves) {
         if (CheckLegalMove(m)) {
             moves.push(m);
             moves_found++;
-        }
+        }   
     }
 
     return moves_found;
@@ -334,9 +336,9 @@ int Board::GetRookMoves(const int piece_index, std::vector<Move>& moves) {
 
     MagicBitboardSet* bitboards = &(magicBitboards->rookMagicBitboard);
 
-    int key = ((occ & bitboards->masks[square] & ~(1ULL << square)) * bitboards->magics[square]) >> bitboards->shifts[square];
+    int key = ((occ & bitboards->masks[square]) * bitboards->magics[square]) >> bitboards->shifts[square];
 
-    Bitboard destinations = magicBitboards->rookMagicBitboard.attacks[square][key];
+    Bitboard destinations = bitboards->attacks[square][key];
 
 
     int num_trailing;
@@ -358,40 +360,73 @@ int Board::GetRookMoves(const int piece_index, std::vector<Move>& moves) {
 int Board::GetBishopMoves(const int piece_index, std::vector<Move>& moves) {
     Piece p = squares[piece_index];
     int moves_found = 0;
+    //
+    // constexpr int offsets[4] = {-7, 7, -9, 9};
+    //
+    // for (int offset : offsets) {
+    //     int prev_new_index = piece_index;
+    //     bool isValid = false;
+    //
+    //     for (int i = 1; i < 8; i++) {
+    //         int new_index = piece_index + offset * i;
+    //
+    //         isValid = (0 <= new_index);
+    //         isValid &= (new_index < 64);
+    //
+    //         isValid &= abs(new_index % 8 - prev_new_index % 8) < 2;
+    //         isValid &= abs(new_index / 8 - prev_new_index / 8) < 2;
+    //
+    //         if (!isValid) {
+    //             break;
+    //         }
+    //
+    //         if (squares[new_index].code == 'E') {
+    //             moves.push_back(Move(piece_index, new_index));
+    //             moves_found++;
+    //         }
+    //         else if (squares[new_index].isWhite != p.isWhite) {
+    //             moves.push_back(Move(piece_index, new_index));
+    //             moves_found++;
+    //             break;
+    //         } else {
+    //             break;
+    //         }
+    //
+    //         prev_new_index = new_index;
+    //     }
+    // }
 
-    constexpr int offsets[4] = {-7, 7, -9, 9};
+    Bitboard occ = 0;
 
-    for (int offset : offsets) {
-        int prev_new_index = piece_index;
-        bool isValid = false;
+    for (int i = 0; i < 64; i++) {
+        // std::cout << (63-i) / 8 * 8 + (i % 8) << ' ';
 
-        for (int i = 1; i < 8; i++) {
-            int new_index = piece_index + offset * i;
-
-            isValid = (0 <= new_index);
-            isValid &= (new_index < 64);
-
-            isValid &= abs(new_index % 8 - prev_new_index % 8) < 2;
-            isValid &= abs(new_index / 8 - prev_new_index / 8) < 2;
-
-            if (!isValid) {
-                break;
-            }
-
-            if (squares[new_index].code == 'E') {
-                moves.push_back(Move(piece_index, new_index));
-                moves_found++;
-            }
-            else if (squares[new_index].isWhite != p.isWhite) {
-                moves.push_back(Move(piece_index, new_index));
-                moves_found++;
-                break;
-            } else {
-                break;
-            }
-
-            prev_new_index = new_index;
+        // if (i > 0 && i % 8 == 7) std::cout << std::endl;
+        if (squares[i].code != 'E') {
+            occ |= (1ULL << (63-i) / 8 * 8 + (i % 8));
         }
+    }
+
+    int square = ((63-piece_index) / 8 * 8 + (piece_index % 8));
+
+    MagicBitboardSet* bitboards = &(magicBitboards->bishopMagicBitboard);
+
+    int key = ((occ & bitboards->masks[square]) * bitboards->magics[square]) >> bitboards->shifts[square];
+
+    Bitboard destinations = bitboards->attacks[square][key];
+
+
+    int num_trailing;
+    for (Bitboard bb = destinations; bb; bb &= bb - 1) {
+        num_trailing = __builtin_ctzll(bb);
+
+        int old_index_type =  (63-num_trailing) / 8 * 8 + num_trailing % 8;
+
+        if (piece_index == old_index_type) continue;
+        if (squares[old_index_type].code != 'E' && squares[old_index_type].isWhite == p.isWhite) continue;
+
+        moves.push_back(Move(piece_index,  old_index_type));
+        moves_found++;
     }
 
     return moves_found;
