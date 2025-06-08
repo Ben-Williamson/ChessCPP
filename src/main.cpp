@@ -5,6 +5,8 @@
 #include "Search.h"
 #include "TreeDebug.h"
 
+#include "./magics/MagicSearch.h"
+
 class cli_wrapper {
 private:
     Board board;
@@ -12,6 +14,8 @@ private:
     bool showBoard = false;
     bool showMoves = false;
     bool mateIn = false;
+
+    AllMagicBitboards magicBitboards;
 
 public:
     cli_wrapper();
@@ -22,6 +26,11 @@ public:
 };
 
 cli_wrapper::cli_wrapper() {
+    MagicSearch magic_search;
+
+    magicBitboards.rookMagicBitboard = magic_search.GenerateRookBitboardSet();
+
+    board.SetMagicBitboards(&magicBitboards);
 }
 
 

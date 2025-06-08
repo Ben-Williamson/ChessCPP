@@ -3,6 +3,7 @@ include(FetchContent)
 project(Chess)
 
 set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3 -march=native")
 
 FetchContent_Declare(
         tracy
@@ -25,6 +26,15 @@ add_executable(Chess main.cpp
         MoveList.cpp
         MoveList.h
         Move.h
+        magics/MagicSearch.cpp
+        magics/MagicSearch.h
+)
+
+add_executable(MagicSearch magics/main.cpp
+        magics/MagicSearch.cpp
+        magics/MagicSearch.h
+
 )
 
 target_link_libraries(Chess PUBLIC TracyClient)
+

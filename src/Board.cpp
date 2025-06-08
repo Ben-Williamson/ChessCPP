@@ -11,7 +11,13 @@
 #include "MoveList.h"
 #include "Profiler.h"
 
-Board::Board() {
+#include "magics/MagicSearch.h"
+
+Board::Board() : magicBitboards(nullptr) {
+}
+
+void Board::SetMagicBitboards(AllMagicBitboards* bitboardSet) {
+    magicBitboards = bitboardSet;
 }
 
 int Board::PieceValues() {
@@ -43,6 +49,7 @@ Board Board::MakeMove(const Move move) {
     after_move.squares[move.from] = Piece{'E', false};
     after_move.whiteToMove = !after_move.whiteToMove;
     after_move.moveHistory.push_back(move);
+    after_move.SetMagicBitboards(magicBitboards);
     return after_move;
 }
 
@@ -299,12 +306,12 @@ int Board::GetRookMoves(const int piece_index, std::vector<Move>& moves) {
                 break;
             }
             if (squares[new_index].code == 'E') {
-                moves.push_back(Move(piece_index, new_index));
-                moves_found++;
+                // moves.push_back(Move(piece_index, new_index));
+                // moves_found++;
             }
             else if (squares[new_index].isWhite != p.isWhite) {
-                moves.push_back(Move(piece_index, new_index));
-                moves_found++;
+                // moves.push_back(Move(piece_index, new_index));
+                // moves_found++;
                 break;
             } else {
                 break;
@@ -312,7 +319,38 @@ int Board::GetRookMoves(const int piece_index, std::vector<Move>& moves) {
         }
     }
 
+    Bitboard occ = 0;
 
+    for (int i = 0; i < 64; i++) {
+        // std::cout << (63-i) / 8 * 8 + (i % 8) << ' ';
+
+        // if (i > 0 && i % 8 == 7) std::cout << std::endl;
+        if (squares[i].code != 'E') {
+            occ |= (1ULL << (63-i) / 8 * 8 + (i % 8));
+        }
+    }
+
+    int square = ((63-piece_index) / 8 * 8 + (piece_index % 8));
+
+    MagicBitboardSet* bitboards = &(magicBitboards->rookMagicBitboard);
+
+    int key = ((occ & bitboards->masks[square] & ~(1ULL << square)) * bitboards->magics[square]) >> bitboards->shifts[square];
+
+    Bitboard destinations = magicBitboards->rookMagicBitboard.attacks[square][key];
+
+
+    int num_trailing;
+    for (Bitboard bb = destinations; bb; bb &= bb - 1) {
+        num_trailing = __builtin_ctzll(bb);
+
+        int old_index_type =  (63-num_trailing) / 8 * 8 + num_trailing % 8;
+
+        if (piece_index == old_index_type) continue;
+        if (squares[old_index_type].code != 'E' && squares[old_index_type].isWhite == p.isWhite) continue;
+
+        moves.push_back(Move(piece_index,  old_index_type));
+        moves_found++;
+    }
 
     return moves_found;
 }

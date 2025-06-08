@@ -10,7 +10,7 @@
 
 #include "Move.h"
 #include "MoveList.h"
-
+#include "magics/MagicSearch.h"
 
 struct Piece {
     char code = 'E';
@@ -21,9 +21,12 @@ class Board {
     Piece squares[64];
     bool whiteToMove;
     std::vector<Move> moveHistory;
+    AllMagicBitboards* magicBitboards;
 
 public:
     Board();
+
+    void SetMagicBitboards(AllMagicBitboards *bitboardSet);
 
     int PieceValues();
 

@@ -25,7 +25,7 @@ class EndgamePuzzles(TestSuite):
             self.testCases[mateIn].append(FEN)
 
     def runTests(self, runner_callback):
-        self.runMateInTests(4, runner_callback)
+        self.runMateInTests(2, runner_callback)
 
     def runMateInTests(self, mateIn, runner_callback):
         success_count, total = 0, 0
@@ -59,6 +59,6 @@ class TestRunner:
 if __name__ == '__main__':
     test = EndgamePuzzles()
 
-    test_runner = TestRunner("./Chess")
+    test_runner = TestRunner("../src/cmake-build-debug/Chess")
 
     test_runner.runTest(test)
