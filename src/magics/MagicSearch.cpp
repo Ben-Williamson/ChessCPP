@@ -145,7 +145,7 @@ Bitboard MagicSearch::CalculateRookMoves(Bitboard square, Bitboard blockers) {
         if (destination & blockers) break;
     }
 
-    return move_destinations;
+    return move_destinations & ~square;
 }
 
 Bitboard MagicSearch::CalculateRookMask(Bitboard square) {
@@ -274,6 +274,35 @@ MagicBitboardSet MagicSearch::GenerateBishopBitboardSet() {
     }
     delete[] bitboards;
     return bishopDictionary;
+}
+
+void MagicSearch::PopulateKingMoves(LookupTables& lookupTables) {
+    int offsets[4] = {-1, 1, -8, 8};
+    for (int i = 4; i < 64; i++) {
+        Bitboard destinations = 0ULL;
+
+        for (int offset : offsets) {
+            if (mailbox[mailbox64[i] + offset] != -1) {
+                destinations |= 1ULL << mailbox[mailbox64[i] + offset];
+            }
+        }
+
+        printBitboard(destinations);
+        exit(0);
+    }
+}
+
+void MagicSearch::PopulateKnightMoves(LookupTables& lookupTables) {
+
+}
+
+LookupTables MagicSearch::GenerateLookupTables() {
+    LookupTables lookupTables{};
+
+    PopulateKingMoves(lookupTables);
+    PopulateKnightMoves(lookupTables);
+
+    return lookupTables;
 }
 
 

@@ -28,12 +28,23 @@ add_executable(Chess main.cpp
         Move.h
         magics/MagicSearch.cpp
         magics/MagicSearch.h
+        PerformantBoard.cpp
+        PerformantBoard.h
+        board_test/main.cpp
 )
 
 add_executable(MagicSearch magics/main.cpp
         magics/MagicSearch.cpp
         magics/MagicSearch.h
+)
 
+add_executable(BoardTest board_test/main.cpp
+        Board.cpp
+        Board.h
+        PerformantBoard.cpp
+        PerformantBoard.h
+        magics/MagicSearch.cpp
+        magics/MagicSearch.h
 )
 
 target_link_libraries(Chess PUBLIC TracyClient)
