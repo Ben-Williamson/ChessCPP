@@ -25,7 +25,7 @@ class EndgamePuzzles(TestSuite):
             self.testCases[mateIn].append(FEN)
 
     def runTests(self, runner_callback):
-        self.runMateInTests(1, runner_callback)
+        self.runMateInTests(2, runner_callback)
 
     def runMateInTests(self, mateIn, runner_callback):
         success_count, total = 0, 0
@@ -33,7 +33,13 @@ class EndgamePuzzles(TestSuite):
         bar = tqdm(self.testCases[mateIn])
 
         for FEN in bar:
-            if int(runner_callback([["--fen", FEN], ["--mateIn", ""]]).strip()) == mateIn:
+            success = False
+            try:
+                success = int(runner_callback([["--fen", FEN], ["--mateIn", ""]]).strip()) == mateIn
+            except:
+                print(f"Error running {FEN}")
+                exit(0)
+            if success:
                 success_count += 1
             else:
                 print("\n", "Test failure:", FEN)

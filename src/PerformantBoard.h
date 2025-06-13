@@ -4,6 +4,8 @@
 
 #ifndef PERFORMANTBOARD_H
 #define PERFORMANTBOARD_H
+#include <stack>
+
 #include "MoveList.h"
 #include "magics/MagicSearch.h"
 
@@ -25,9 +27,14 @@ class PerformantBoard {
     Bitboard blackQueens;
     Bitboard blackKing;
 
+    Bitboard whiteOcc;
+    Bitboard blackOcc;
     Bitboard occ;
 
     AllMagicBitboards* magicBitboards;
+    LookupTables* lookupTables;
+
+    std::stack<UnmakeMove> unmakeStack;
 
 public:
     PerformantBoard();
@@ -36,7 +43,19 @@ public:
 
     void UpdateOccupancy();
 
+    bool WhiteKingInCheck();
+
+    bool BlackKingInCheck();
+
+    void MakeMove(Move move);
+
+    void UndoMove();
+
+    bool KingInCheck();
+
     int GetAllMoves(MoveList &moves);
+
+    int GetPieceMoves(int piece_index, MoveList &moves);
 
     int GetQueenMoves(int piece_index, MoveList &moves);
 
@@ -44,9 +63,19 @@ public:
 
     int GetBishopMoves(int piece_index, MoveList &moves);
 
+    int GetKnightMoves(int piece_index, MoveList &moves);
+
+    int GetKingMoves(int piece_index, MoveList &moves);
+
+    int GetPawnMoves(int piece_index, MoveList &moves);
+
     int BitboardToMoveList(int piece_index, Bitboard bitboard, MoveList &moves);
 
     friend std::ostream& operator<<(std::ostream& os, const PerformantBoard& b);
+
+    void SetLookupTables(LookupTables *lookup_tables);
+
+    int PieceValues();
 };
 
 

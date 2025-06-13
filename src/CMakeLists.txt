@@ -30,7 +30,6 @@ add_executable(Chess main.cpp
         magics/MagicSearch.h
         PerformantBoard.cpp
         PerformantBoard.h
-        board_test/main.cpp
 )
 
 add_executable(MagicSearch magics/main.cpp

@@ -8,6 +8,8 @@
 #include "Board.h"
 #include "TreeDebug.h"
 #include <limits>
+
+#include "PerformantBoard.h"
 #include "Profiler.h"
 
 constexpr float INF = std::numeric_limits<float>::infinity();
@@ -21,6 +23,10 @@ public:
     Searcher(int maxDepth);
 
     float FindBestMove(Board &root, std::vector<MoveEval> &principalVariation);
+
+    float FindBestMove(PerformantBoard &root, std::vector<MoveEval> &principalVariation);
+
+    float AlphaBeta(PerformantBoard &b, int depth, float alpha, float beta, std::vector<MoveEval> &line);
 
     float AlphaBeta(Board &b, int depth, float alpha, float beta, std::vector<MoveEval> &line);
 

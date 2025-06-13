@@ -85,9 +85,9 @@ public:
 
     void BuildRookDictionary(uint64_t search_square, uint64_t magic, int num_bitboards, const uint64_t *bitboards);
 
-    MagicBitboardSet GenerateRookBitboardSet();
+    MagicBitboardSet GenerateRookBitboardSet(bool regenerateMagics);
 
-    MagicBitboardSet GenerateBishopBitboardSet();
+    MagicBitboardSet GenerateBishopBitboardSet(bool regenerateMagics);
 
     void PopulateKingMoves(LookupTables &lookupTables);
 

@@ -9,13 +9,15 @@
 
 class cli_wrapper {
 private:
-    Board board;
+    PerformantBoard board;
     Searcher searcher;
     bool showBoard = false;
     bool showMoves = false;
     bool mateIn = false;
+    bool regenerateMagics = false;
 
     AllMagicBitboards magicBitboards;
+    LookupTables lookupTables;
 
 public:
     cli_wrapper();
@@ -26,12 +28,7 @@ public:
 };
 
 cli_wrapper::cli_wrapper() {
-    MagicSearch magic_search;
 
-    magicBitboards.rookMagicBitboard = magic_search.GenerateRookBitboardSet();
-    magicBitboards.bishopMagicBitboard = magic_search.GenerateBishopBitboardSet();
-
-    board.SetMagicBitboards(&magicBitboards);
 }
 
 
@@ -47,6 +44,9 @@ int cli_wrapper::process_arg(std::string arg, std::string value) {
     }
     else if (arg == "--moves") {
         showMoves = true;
+    }
+    else if (arg == "--regenerateMagics") {
+        regenerateMagics = true;
     }
     return 1;
 }
@@ -77,6 +77,16 @@ int cli_wrapper::parse_args(int argc, char* argv[]) {
 }
 
 int cli_wrapper::doit() {
+    MagicSearch magic_search;
+
+    magicBitboards.rookMagicBitboard = magic_search.GenerateRookBitboardSet(regenerateMagics);
+    magicBitboards.bishopMagicBitboard = magic_search.GenerateBishopBitboardSet(regenerateMagics);
+
+    lookupTables = magic_search.GenerateLookupTables();
+
+    board.SetMagicBitboards(&magicBitboards);
+    board.SetLookupTables(&lookupTables);
+
     std::vector<MoveEval> PV;
     searcher.FindBestMove(board, PV);
 
@@ -110,6 +120,10 @@ int cli_wrapper::doit() {
             std::cout << ME.move << std::endl;
         }
     }
+
+    #ifdef DEBUG
+    std::cout << node_counter << " nodes evaluated" << std::endl;
+    #endif
 
     return 0;
 }
