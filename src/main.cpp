@@ -15,6 +15,7 @@ private:
     bool showMoves = false;
     bool mateIn = false;
     bool regenerateMagics = false;
+    bool showBestMove = false;
 
     AllMagicBitboards magicBitboards;
     LookupTables lookupTables;
@@ -47,6 +48,9 @@ int cli_wrapper::process_arg(std::string arg, std::string value) {
     }
     else if (arg == "--regenerateMagics") {
         regenerateMagics = true;
+    }
+    else if (arg == "--showBestMove") {
+        showBestMove = true;
     }
     return 1;
 }
@@ -119,6 +123,10 @@ int cli_wrapper::doit() {
         for (MoveEval& ME : PV) {
             std::cout << ME.move << std::endl;
         }
+    }
+
+    if (showBestMove && !PV.empty()) {
+        std::cout << PV[0].move << std::endl;
     }
 
     #ifdef DEBUG

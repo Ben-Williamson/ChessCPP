@@ -29,13 +29,16 @@ int main() {
 
 
     // B.SetFEN("1k1r1b1q/2p1p3/Q1p5/2Np1bp1/3P2p1/4P1B1/PPP2PP1/R4RK1 w - - 1 19");
-    PB.SetFEN("r7/1bpQ2Rp/1p6/4P2P/p7/Pn1p1k2/KPq2r2/4R3 w - - 6 38");
+    PB.SetFEN("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
 
     // std::cout << "BOARD:" <<std::endl;
     // std::cout << B << std::endl;
 
     std::cout << "PERFORMANT BOARD:" <<std::endl;
     std::cout << PB << std::endl;
+
+    std::cout << PB.PieceValues() << std::endl;
+    return 0;
 
 
     MoveList moves;

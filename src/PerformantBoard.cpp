@@ -100,19 +100,54 @@ void PerformantBoard::SetLookupTables(LookupTables* lookup_tables) {
 int PerformantBoard::PieceValues() {
     int value = 0;
 
-    for (Bitboard bb = whitePawns; bb; bb &= bb - 1) value+=1;
-    for (Bitboard bb = whiteRooks; bb; bb &= bb - 1) value+=5;
-    for (Bitboard bb = whiteKnights; bb; bb &= bb - 1) value+=3;
-    for (Bitboard bb = whiteBishops; bb; bb &= bb - 1) value+=3;
-    for (Bitboard bb = whiteQueens; bb; bb &= bb - 1) value+=9;
+    for (Bitboard bb = whitePawns; bb; bb &= bb - 1) {
+        int pos = __builtin_ctzll(bb);
+        value += pawnValue + pawnSquares[56 - pos / 8 * 8 + pos % 8];
+    }
+    for (Bitboard bb = whiteRooks; bb; bb &= bb - 1) {
+        int pos = __builtin_ctzll(bb);
+        value += rookValue + rookSquares[56 - pos / 8 * 8 + pos % 8];
+    }
+    for (Bitboard bb = whiteKnights; bb; bb &= bb - 1) {
+        int pos = __builtin_ctzll(bb);
+        value += knightValue + knightSquares[56 - pos / 8 * 8 + pos % 8];
+    }
+    for (Bitboard bb = whiteBishops; bb; bb &= bb - 1) {
+        int pos = __builtin_ctzll(bb);
+        value += bishopValue + bishopSquares[56 - pos / 8 * 8 + pos % 8];
+    }
+    for (Bitboard bb = whiteQueens; bb; bb &= bb - 1) {
+        int pos = __builtin_ctzll(bb);
+        value += queenValue + queenSquares[56 - pos / 8 * 8 + pos % 8];
+    }
 
-    for (Bitboard bb = blackPawns; bb; bb &= bb - 1) value-=1;
-    for (Bitboard bb = blackRooks; bb; bb &= bb - 1) value-=5;
-    for (Bitboard bb = blackKnights; bb; bb &= bb - 1) value-=3;
-    for (Bitboard bb = blackBishops; bb; bb &= bb - 1) value-=3;
-    for (Bitboard bb = blackQueens; bb; bb &= bb - 1) value-=9;
+    for (Bitboard bb = blackPawns; bb; bb &= bb - 1) {
+        int pos = __builtin_ctzll(bb);
+        pos = 63 - pos;
+        value-= pawnValue + pawnSquares[56 - pos / 8 * 8 + pos % 8];
+    }
+    for (Bitboard bb = blackRooks; bb; bb &= bb - 1) {
+        int pos = __builtin_ctzll(bb);
+        pos = 63 - pos;
+        value-= rookValue + rookSquares[56 - pos / 8 * 8 + pos % 8];
+    }
+    for (Bitboard bb = blackKnights; bb; bb &= bb - 1) {
+        int pos = __builtin_ctzll(bb);
+        pos = 63 - pos;
+        value-= knightValue + knightSquares[56 - pos / 8 * 8 + pos % 8];
+    }
+    for (Bitboard bb = blackBishops; bb; bb &= bb - 1) {
+        int pos = __builtin_ctzll(bb);
+        pos = 63 - pos;
+        value-= bishopValue + bishopSquares[56 - pos / 8 * 8 + pos % 8];
+    }
+    for (Bitboard bb = blackQueens; bb; bb &= bb - 1) {
+        int pos = __builtin_ctzll(bb);
+        pos = 63 - pos;
+        value-= queenValue + queenSquares[56 - pos / 8 * 8 + pos % 8];
+    }
 
-    return value;
+    return whiteToMove ? value : -value;
 }
 
 void PerformantBoard::UpdateOccupancy() {
