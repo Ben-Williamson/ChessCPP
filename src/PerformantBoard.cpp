@@ -7,6 +7,7 @@
 #include <map>
 
 #include "MoveList.h"
+#include "CrossPlatform.h"
 
 
 PerformantBoard::PerformantBoard() :
@@ -101,48 +102,48 @@ int PerformantBoard::PieceValues() {
     int value = 0;
 
     for (Bitboard bb = whitePawns; bb; bb &= bb - 1) {
-        int pos = __builtin_ctzll(bb);
+        int pos = portable::ctzll(bb);
         value += pawnValue + pawnSquares[56 - pos / 8 * 8 + pos % 8];
     }
     for (Bitboard bb = whiteRooks; bb; bb &= bb - 1) {
-        int pos = __builtin_ctzll(bb);
+        int pos = portable::ctzll(bb);
         value += rookValue + rookSquares[56 - pos / 8 * 8 + pos % 8];
     }
     for (Bitboard bb = whiteKnights; bb; bb &= bb - 1) {
-        int pos = __builtin_ctzll(bb);
+        int pos = portable::ctzll(bb);
         value += knightValue + knightSquares[56 - pos / 8 * 8 + pos % 8];
     }
     for (Bitboard bb = whiteBishops; bb; bb &= bb - 1) {
-        int pos = __builtin_ctzll(bb);
+        int pos = portable::ctzll(bb);
         value += bishopValue + bishopSquares[56 - pos / 8 * 8 + pos % 8];
     }
     for (Bitboard bb = whiteQueens; bb; bb &= bb - 1) {
-        int pos = __builtin_ctzll(bb);
+        int pos = portable::ctzll(bb);
         value += queenValue + queenSquares[56 - pos / 8 * 8 + pos % 8];
     }
 
     for (Bitboard bb = blackPawns; bb; bb &= bb - 1) {
-        int pos = __builtin_ctzll(bb);
+        int pos = portable::ctzll(bb);
         pos = 63 - pos;
         value-= pawnValue + pawnSquares[56 - pos / 8 * 8 + pos % 8];
     }
     for (Bitboard bb = blackRooks; bb; bb &= bb - 1) {
-        int pos = __builtin_ctzll(bb);
+        int pos = portable::ctzll(bb);
         pos = 63 - pos;
         value-= rookValue + rookSquares[56 - pos / 8 * 8 + pos % 8];
     }
     for (Bitboard bb = blackKnights; bb; bb &= bb - 1) {
-        int pos = __builtin_ctzll(bb);
+        int pos = portable::ctzll(bb);
         pos = 63 - pos;
         value-= knightValue + knightSquares[56 - pos / 8 * 8 + pos % 8];
     }
     for (Bitboard bb = blackBishops; bb; bb &= bb - 1) {
-        int pos = __builtin_ctzll(bb);
+        int pos = portable::ctzll(bb);
         pos = 63 - pos;
         value-= bishopValue + bishopSquares[56 - pos / 8 * 8 + pos % 8];
     }
     for (Bitboard bb = blackQueens; bb; bb &= bb - 1) {
-        int pos = __builtin_ctzll(bb);
+        int pos = portable::ctzll(bb);
         pos = 63 - pos;
         value-= queenValue + queenSquares[56 - pos / 8 * 8 + pos % 8];
     }
@@ -171,7 +172,7 @@ bool PerformantBoard::WhiteKingInCheck() {
     if (whiteKing == 0) return true;
 
     // Get king location
-    const int kingLoc = __builtin_ctzll(whiteKing);
+    const int kingLoc = portable::ctzll(whiteKing);
 
     // Helpers for using bitboards
     MagicBitboardSet* bbSet;
@@ -214,7 +215,7 @@ bool PerformantBoard::BlackKingInCheck() {
     if (blackKing == 0) return true;
 
     // Get king location
-    int kingLoc = __builtin_ctzll(blackKing);
+    int kingLoc = portable::ctzll(blackKing);
 
     // Helpers for using bitboards
     MagicBitboardSet* bbSet;
@@ -313,7 +314,7 @@ int PerformantBoard::GetAllMoves(MoveList &moves) {
         //     if (whiteOcc & (1ULL << i)) pseudoMovesFound += GetPieceMoves(i, pseudoMoves);
         // }
         for (Bitboard bb = whiteOcc; bb; bb &= bb-1) {
-            int from = __builtin_ctzll(bb);
+            int from = portable::ctzll(bb);
             pseudoMovesFound += GetPieceMoves(from, pseudoMoves);
         }
         for (int i = 0; i < pseudoMovesFound; i++) {
@@ -326,7 +327,7 @@ int PerformantBoard::GetAllMoves(MoveList &moves) {
         }
     } else {
         for (Bitboard bb = blackOcc; bb; bb &= bb-1) {
-            int from = __builtin_ctzll(bb);
+            int from = portable::ctzll(bb);
             pseudoMovesFound += GetPieceMoves(from, pseudoMoves);
         }
         for (int i = 0; i < pseudoMovesFound; i++) {
@@ -431,7 +432,7 @@ inline int PerformantBoard::BitboardToMoveList(int piece_index, Bitboard bitboar
     int found = 0;
 
     for (Bitboard bb = bitboard; bb; bb &= bb - 1) {
-        num_trailing = __builtin_ctzll(bb);
+        num_trailing = portable::ctzll(bb);
 
         moves.push(Move{piece_index, num_trailing});
         found++;

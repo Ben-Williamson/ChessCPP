@@ -6,9 +6,9 @@
 #define MAGICSEARCH_H
 #include <bitset>
 #include <iostream>
-#include <bits/stdint-uintn.h>
+#include <cstdint>
 
-typedef uint64_t Bitboard;
+typedef std::uint64_t Bitboard;
 
 struct MagicBitboardSet {
     uint64_t magics[64];

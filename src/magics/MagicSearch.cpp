@@ -10,6 +10,8 @@
 #include <stdint.h>
 #include <iostream>
 #include <unordered_set>
+#include <random>
+#include "../CrossPlatform.h"
 
 uint64_t knownBishopMagics[64] = {
     9585384058465157188ULL, 2535755167694856ULL, 4630300751376679426ULL, 9242569529203165218ULL,
@@ -73,8 +75,8 @@ int knownRookShifts[64] = {
 
 uint64_t random_uint64() {
     uint64_t u1, u2, u3, u4;
-    u1 = (uint64_t)(random()) & 0xFFFF; u2 = (uint64_t)(random()) & 0xFFFF;
-    u3 = (uint64_t)(random()) & 0xFFFF; u4 = (uint64_t)(random()) & 0xFFFF;
+    u1 = (uint64_t)(std::rand()) & 0xFFFF; u2 = (uint64_t)(std::rand()) & 0xFFFF;
+    u3 = (uint64_t)(std::rand()) & 0xFFFF; u4 = (uint64_t)(std::rand()) & 0xFFFF;
     return u1 | (u2 << 16) | (u3 << 32) | (u4 << 48);
 }
 
@@ -230,11 +232,11 @@ Bitboard MagicSearch::CalculateRookMask(Bitboard square) {
 int MagicSearch::GenerateAllBishopBlockers(Bitboard square, Bitboard *bitboards) {
     Bitboard mask = CalculateBishopMask(square);
 
-    for (int i = 0; i < 1ULL << std::popcount(mask); i++) {
+    for (int i = 0; i < 1ULL << portable::popcount(mask); i++) {
         bitboards[i] = _pdep_u64(i, mask);
     }
 
-    return 1ULL << std::popcount(mask);
+    return 1ULL << portable::popcount(mask);
 }
 
 Bitboard MagicSearch::CalculateBishopMoves(Bitboard square, Bitboard blockers) {

@@ -13,7 +13,7 @@
 #define ZoneScoped ;
 #endif
 
-// #define DEBUG
+ #define DEBUG
 
 #ifdef DEBUG
 inline int node_counter = 0;
