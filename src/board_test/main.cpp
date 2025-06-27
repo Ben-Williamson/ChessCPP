@@ -38,7 +38,6 @@ int main() {
     std::cout << PB << std::endl;
 
     std::cout << PB.PieceValues() << std::endl;
-    return 0;
 
 
     MoveList moves;
@@ -73,7 +72,7 @@ int main() {
     std::cout << PB.GetAllMoves(moves) << std::endl;
 
     for (int i = 0; i < moves.size; i++) {
-        std::cout << moves.list[i] << std::endl;
+        std::cout << moves.list[i] << " " << moves.list[i].CoordsToBoardSquares() << std::endl;
     }
 
 

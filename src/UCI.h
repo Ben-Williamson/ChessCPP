@@ -18,6 +18,7 @@ class UCI_Wrapper {
     bool mateIn = false;
     bool regenerateMagics = false;
     bool showBestMove = false;
+    bool running = false;
 
     AllMagicBitboards magicBitboards;
     LookupTables lookupTables;

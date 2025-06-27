@@ -20,6 +20,20 @@ PerformantBoard::PerformantBoard() :
 }
 
 void PerformantBoard::SetFEN(const std::string& FEN) {
+    whitePawns = 0ULL;
+    whiteRooks = 0ULL;
+    whiteKnights = 0ULL;
+    whiteBishops = 0ULL;
+    whiteQueens = 0ULL;
+    whiteKing = 0ULL;
+
+    blackPawns = 0ULL;
+    blackRooks = 0ULL;
+    blackKnights = 0ULL;
+    blackBishops = 0ULL;
+    blackQueens = 0ULL;
+    blackKing = 0ULL;
+
     int index = 0;
     int string_index = 0;
 
@@ -275,6 +289,44 @@ void PerformantBoard::MakeMove(Move move) {
         else if (*bitboard & toMask) {
             *bitboard &= ~toMask;
         }
+    }
+
+    if (move.promotionPiece) {
+        whitePawns &= 0xffffffffffffff;
+        blackPawns &= 0xffffffffffffff00;
+
+        if (whiteToMove) {
+            switch (move.promotionPiece) {
+            case 'Q':
+                whiteQueens |= toMask;
+                break;
+            case 'R':
+                whiteRooks |= toMask;
+                break;
+            case 'B':
+                whiteBishops |= toMask;
+                break;
+            case 'N':
+                whiteKnights |= toMask;
+                break;
+            }
+        } else {
+            switch (move.promotionPiece) {
+            case 'Q':
+                blackQueens |= toMask;
+                break;
+            case 'R':
+                blackRooks |= toMask;
+                break;
+            case 'B':
+                blackBishops |= toMask;
+                break;
+            case 'N':
+                blackKnights |= toMask;
+                break;
+            }
+        }
+        
     }
 
     whiteToMove = !whiteToMove;
