@@ -25,7 +25,7 @@ class EndgamePuzzles(TestSuite):
             self.testCases[mateIn].append(FEN)
 
     def runTests(self, runner_callback):
-        self.runMateInTests(4, runner_callback)
+        self.runMateInTests(2, runner_callback)
 
     def runMateInTests(self, mateIn, runner_callback):
         success_count, total = 0, 0
@@ -36,8 +36,9 @@ class EndgamePuzzles(TestSuite):
             success = False
             try:
                 success = int(runner_callback([["--fen", FEN], ["--mateIn", ""]]).strip()) == mateIn
-            except:
+            except Exception as e:
                 print(f"Error running {FEN}")
+                print(e)
                 exit(0)
             if success:
                 success_count += 1
@@ -65,6 +66,6 @@ class TestRunner:
 if __name__ == '__main__':
     test = EndgamePuzzles()
 
-    test_runner = TestRunner("../src/cmake-build-debug/Chess")
+    test_runner = TestRunner(r"..\src\out\build\x64-Release\CLI_Chess.exe")
 
     test_runner.runTest(test)

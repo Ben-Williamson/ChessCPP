@@ -12,6 +12,7 @@
 #include "Profiler.h"
 
 #include "magics/MagicSearch.h"
+#include "CrossPlatform.h"
 
 Board::Board() : magicBitboards(nullptr) {
 }
@@ -343,7 +344,7 @@ int Board::GetRookMoves(const int piece_index, std::vector<Move>& moves) {
 
     int num_trailing;
     for (Bitboard bb = destinations; bb; bb &= bb - 1) {
-        num_trailing = __builtin_ctzll(bb);
+          num_trailing = portable::ctzll(bb);
 
         int old_index_type =  (63-num_trailing) / 8 * 8 + num_trailing % 8;
 
@@ -418,7 +419,7 @@ int Board::GetBishopMoves(const int piece_index, std::vector<Move>& moves) {
 
     int num_trailing;
     for (Bitboard bb = destinations; bb; bb &= bb - 1) {
-        num_trailing = __builtin_ctzll(bb);
+        num_trailing = portable::ctzll(bb);
 
         int old_index_type =  (63-num_trailing) / 8 * 8 + num_trailing % 8;
 
