@@ -436,8 +436,13 @@ inline int PerformantBoard::GetKingMoves(int piece_index, MoveList& moves) {
 }
 
 inline int PerformantBoard::GetPawnMoves(int piece_index, MoveList& moves) {
-    const Bitboard secondRank = 0xff00;
+    int promotionsFound = 0;
+
+    const Bitboard firstRank = 0xff;
+    const Bitboard secondRank  = 0xff00;
     const Bitboard seventhRank = 0xff000000000000;
+    const Bitboard eighthRank  = 0xff00000000000000;
+
     const Bitboard aFile = 0x101010101010101;
     const Bitboard hFile = 0x8080808080808080;
     Bitboard pawn = 1ULL << piece_index;
@@ -471,7 +476,18 @@ inline int PerformantBoard::GetPawnMoves(int piece_index, MoveList& moves) {
     // Can take to the right if not on the H file
     destinations |= (blackPawn & ~hFile) >> 7 & whiteOcc;
 
-    return BitboardToMoveList(piece_index, destinations, moves);
+    int num_trailing;
+    for (Bitboard bb = destinations & (firstRank | eighthRank); bb; bb &= bb - 1) {
+        num_trailing = portable::ctzll(bb);
+
+        moves.push(Move{ piece_index, num_trailing, 'Q' });
+        moves.push(Move{ piece_index, num_trailing, 'R' });
+        moves.push(Move{ piece_index, num_trailing, 'N' });
+        moves.push(Move{ piece_index, num_trailing, 'B' });
+        promotionsFound+=4;
+    }
+
+    return BitboardToMoveList(piece_index, destinations, moves) + promotionsFound;
 }
 
 inline int PerformantBoard::BitboardToMoveList(int piece_index, Bitboard bitboard, MoveList& moves) {

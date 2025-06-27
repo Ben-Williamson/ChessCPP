@@ -143,9 +143,7 @@ bool UCI_Wrapper::ProcessCommand(std::string command) {
 		searcher.FindBestMove(board, PV);
 
 		std::cout << "bestmove " << PV[0].move.CoordsToBoardSquares() << std::endl;
-
 		std::cout << "info string total moves:" << board.GetAllMoves(moves)  << " best:" << PV[0].move << std::endl;
-		std::cout << board << std::endl;
 
 		return true;
 	}

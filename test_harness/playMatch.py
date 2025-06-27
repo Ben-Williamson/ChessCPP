@@ -4,8 +4,8 @@ import chess.engine
 
 from tqdm import tqdm
 
-import logging
-# logging.basicConfig(level=logging.DEBUG)
+# import logging
+# # logging.basicConfig(level=logging.DEBUG)
 
 async def main() -> None:
     _, stockfish = await chess.engine.popen_uci(r"executables/stockfish/stockfish-windows-x86-64-avx2.exe")
@@ -16,7 +16,7 @@ async def main() -> None:
         "UCI_Elo": 1320
     })
 
-    bar = tqdm(range(0, 10))
+    bar = tqdm(range(10), ncols=150)
     whiteWins = 0
     blackWins = 0
 
@@ -26,13 +26,13 @@ async def main() -> None:
             board = chess.Board(fen="rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w - - 0 1")
             while not board.is_game_over():
                 if board.turn == chess.WHITE:
-                    result = await botjamin.play(board, chess.engine.Limit(time=0.1))
+                    result = await botjamin.play(board, chess.engine.Limit(time=1))
                 else:
                     result = await stockfish.play(board, chess.engine.Limit(time=0.1))
 
                 if board.is_legal(result.move):
                     board.push(result.move)
-                    # print(board.fen())
+                    # print(board)
                 else:
                     print(f"Illegal move attempted: {result.move}")
                     break
@@ -43,7 +43,7 @@ async def main() -> None:
             # print(board)
             # print(board.result())
 
-            print(board.result())
+            # print(board.result())
             if board.result() == '1-0':
                 whiteWins += 1
             elif board.result() == '0-1':
@@ -52,7 +52,7 @@ async def main() -> None:
                 whiteWins += 0.5
                 blackWins += 0.5
         except:
-            print("NOTE: Failed game detected.")
+            print("\nNOTE: Failed game detected.")
             pass
 
     await stockfish.quit()
