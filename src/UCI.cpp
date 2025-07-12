@@ -3,6 +3,7 @@
 #include <string>
 #include "UCI.h"
 #include <map>
+#include "Zobrist.h"
 
 UCI_Wrapper::UCI_Wrapper() : isready(false), regenerateMagics(false), running(true) {
 	isready = getReady(); 
@@ -10,6 +11,7 @@ UCI_Wrapper::UCI_Wrapper() : isready(false), regenerateMagics(false), running(tr
 
 bool UCI_Wrapper::getReady() {
 	MagicSearch magic_search;
+	Zobrist zobrist_tables;
 
 	magicBitboards.rookMagicBitboard = magic_search.GenerateRookBitboardSet(regenerateMagics);
 	magicBitboards.bishopMagicBitboard = magic_search.GenerateBishopBitboardSet(regenerateMagics);
@@ -18,6 +20,7 @@ bool UCI_Wrapper::getReady() {
 
 	board.SetMagicBitboards(&magicBitboards);
 	board.SetLookupTables(&lookupTables);
+	board.SetZobristTables(&zobrist_tables);
 
 	return true;
 }
@@ -104,11 +107,11 @@ bool UCI_Wrapper::ProcessCommand(std::string command) {
 		if (args.size() > 1 && args[2] == "moves") {
 			for (int i = 3; i < args.size(); i++) {
 				board.MakeMove(Move::fromUci(args[i]));
-				std::cout << "info string played:" << args[i] << std::endl;
-				std::cout << "info string promotion found:" << Move::fromUci(args[i]).promotionPiece << std::endl;
-				if (Move::fromUci(args[i]).promotionPiece) {
-					std::cout << "info string promotion happened" << std::endl;
-				}
+				//std::cout << "info string played:" << args[i] << std::endl;
+				//std::cout << "info string promotion found:" << Move::fromUci(args[i]).promotionPiece << std::endl;
+				//if (Move::fromUci(args[i]).promotionPiece) {
+				//	std::cout << "info string promotion happened" << std::endl;
+				//}
 			}
 		}
 		if (args.size() > 0 && args[1] == "fen") {
@@ -122,10 +125,10 @@ bool UCI_Wrapper::ProcessCommand(std::string command) {
 			if (args.size() > 8 && args[8] == "moves") {
 				for (int i = 9; i < args.size(); i++) {
 					board.MakeMove(Move::fromUci(args[i]));
-					std::cout << "info string played:" << args[i] << std::endl;
-					if (Move::fromUci(args[i]).promotionPiece) {
-						std::cout << "info string promotion happened" << std::endl;
-					}
+					//std::cout << "info string played:" << args[i] << std::endl;
+					//if (Move::fromUci(args[i]).promotionPiece) {
+					//	std::cout << "info string promotion happened" << std::endl;
+					//}
 				}
 			}
 		}
@@ -142,8 +145,13 @@ bool UCI_Wrapper::ProcessCommand(std::string command) {
 		MoveList moves;
 		searcher.FindBestMove(board, PV);
 
-		std::cout << "bestmove " << PV[0].move.CoordsToBoardSquares() << std::endl;
-		std::cout << "info string total moves:" << board.GetAllMoves(moves)  << " best:" << PV[0].move << std::endl;
+		if (PV[0].move.promotionPiece) {
+			std::cout << "bestmove " << PV[0].move.CoordsToBoardSquares() << PV[0].move.promotionPiece << std::endl;
+		}
+		else {
+			std::cout << "bestmove " << PV[0].move.CoordsToBoardSquares() << std::endl;
+		}
+		//std::cout << "info string total moves:" << board.GetAllMoves(moves)  << " best:" << PV[0].move << std::endl;
 
 		return true;
 	}

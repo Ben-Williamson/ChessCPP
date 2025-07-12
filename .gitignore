@@ -4,3 +4,5 @@ cmake-build-debug/
 .vs/
 src/out/
 test_harness/executables/
+test_harness/arena/
+test_harness/pgn_logs/

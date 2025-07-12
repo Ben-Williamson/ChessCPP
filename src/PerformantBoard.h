@@ -8,6 +8,7 @@
 
 #include "MoveList.h"
 #include "magics/MagicSearch.h"
+#include "Zobrist.h"
 
 constexpr int pawnValue = 100;
 constexpr int knightValue = 320;
@@ -102,8 +103,11 @@ class PerformantBoard {
     Bitboard blackOcc;
     Bitboard occ;
 
+    uint64_t zobristHash;
+
     AllMagicBitboards* magicBitboards;
     LookupTables* lookupTables;
+    Zobrist* zobristTables;
 
     std::stack<UnmakeMove> unmakeStack;
 
@@ -121,6 +125,8 @@ public:
     void MakeMove(Move move);
 
     void UndoMove();
+
+    uint64_t getZobrist();
 
     bool KingInCheck();
 
@@ -145,6 +151,8 @@ public:
     friend std::ostream& operator<<(std::ostream& os, const PerformantBoard& b);
 
     void SetLookupTables(LookupTables *lookup_tables);
+
+    void SetZobristTables(Zobrist* zobrist_tables);
 
     int PieceValues();
 };

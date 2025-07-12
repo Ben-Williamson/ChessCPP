@@ -10,7 +10,7 @@
 #include <stdint.h>
 #include <iostream>
 #include <unordered_set>
-#include <random>
+#include "../Random.h"
 #include "../CrossPlatform.h"
 
 uint64_t knownBishopMagics[64] = {
@@ -72,13 +72,6 @@ int knownRookShifts[64] = {
     53, 54, 54, 54, 54, 54, 54, 53,
     52, 53, 53, 53, 53, 53, 53, 52,
 };
-
-uint64_t random_uint64() {
-    uint64_t u1, u2, u3, u4;
-    u1 = (uint64_t)(std::rand()) & 0xFFFF; u2 = (uint64_t)(std::rand()) & 0xFFFF;
-    u3 = (uint64_t)(std::rand()) & 0xFFFF; u4 = (uint64_t)(std::rand()) & 0xFFFF;
-    return u1 | (u2 << 16) | (u3 << 32) | (u4 << 48);
-}
 
 MagicSearch::MagicSearch() {
 

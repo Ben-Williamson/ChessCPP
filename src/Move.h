@@ -52,6 +52,8 @@ struct UnmakeMove {
     Bitboard prevBlackBishops;
     Bitboard prevBlackQueens;
     Bitboard prevBlackKing;
+
+    uint64_t zobrist;
 };
 
 struct MoveEval {

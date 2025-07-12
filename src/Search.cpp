@@ -6,7 +6,7 @@
 #include "PerformantBoard.h"
 
 constexpr float MATE_SCORE = 1'000'000.0f;
-constexpr int   DEFAULT_DEPTH = 2   ;
+constexpr int   DEFAULT_DEPTH = 6;
 
 
 // -----------------------------------------------------------------------------
@@ -29,7 +29,7 @@ float Searcher::FindBestMove(PerformantBoard& root,
     return score;
 }
 
-float Searcher::AlphaBeta(PerformantBoard&            b,
+float Searcher::AlphaBeta(PerformantBoard&  b,
                           int               depth,
                           float             alpha,
                           float             beta,
