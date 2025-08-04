@@ -11,32 +11,28 @@
 
 #include "PerformantBoard.h"
 #include "Profiler.h"
+#include "TranspositionTable.h"
 
 constexpr float INF = std::numeric_limits<float>::infinity();
 
 class Searcher {
     int maxDepth_;
+    TranspositionTable transpositionTable;
+
+#ifdef DEBUG
+    int transpositionHits;
+    int nodesVisited;
+#endif
 
 public:
     Searcher();
 
     Searcher(int maxDepth);
 
-    float FindBestMove(Board &root, std::vector<MoveEval> &principalVariation);
+    float FindBestMove(PerformantBoard& root, std::vector<Move>& PV);
+    float FixMateScore(float score, int depthFromRoot);
+    float NegaMax(PerformantBoard& board, int depth, float alpha, float beta, std::vector<Move>& PV, int colour, int maxDepth);
 
-    float FindBestMove(PerformantBoard &root, std::vector<MoveEval> &principalVariation);
-
-    float AlphaBeta(PerformantBoard &b, int depth, float alpha, float beta, std::vector<MoveEval> &line);
-
-    float AlphaBeta(Board &b, int depth, float alpha, float beta, std::vector<MoveEval> &line);
-
-    float Mini(Board b, int depth, float alpha, float beta, Move *bestMove, TreeDebug *tree);
-
-    float Maxi(Board b, int depth, float alpha, float beta, Move *bestMove, TreeDebug *tree);
-
-    float Mini(Board b, int depth, float alpha, float beta, Move *bestMove, TreeDebug *tree, int parentId);
-
-    float Maxi(Board b, int depth, float alpha, float beta, Move *bestMove, TreeDebug *tree, int parentId);
 };
 
 #endif //CHESS_SEARCH_H

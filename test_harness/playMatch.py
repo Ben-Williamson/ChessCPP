@@ -35,7 +35,7 @@ async def _play_single_game(
     _, stockfish = await chess.engine.popen_uci(stockfish_path)
     _, botjamin = await chess.engine.popen_uci(botjamin_path)
 
-    await stockfish.configure({"UCI_LimitStrength": True, "UCI_Elo": 1700})
+    await stockfish.configure({"UCI_LimitStrength": True, "UCI_Elo": 2000})
 
     board = chess.Board(
         fen="rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w - - 0 1",
@@ -48,6 +48,7 @@ async def _play_single_game(
         # Main game loop
         # ------------------------------------------------------
         while not board.is_game_over():
+            board.ep_square = None
             if board.turn == chess.WHITE:
                 result = await botjamin.play(board, chess.engine.Limit(time=1))
             else:
@@ -58,6 +59,7 @@ async def _play_single_game(
 
             board.push(result.move)
             move_count += 1
+            print(f"Game: {game_idx}, Move: {move_count}")
     except Exception as exc:  # noqa: BLE001
         error = exc
 

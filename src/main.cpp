@@ -5,6 +5,7 @@
 #include "Search.h"
 #include "TreeDebug.h"
 
+#include "Zobrist.h"
 #include "./magics/MagicSearch.h"
 
 class cli_wrapper {
@@ -19,6 +20,7 @@ private:
 
     AllMagicBitboards magicBitboards;
     LookupTables lookupTables;
+    Zobrist zobrist_tables;
 
 public:
     cli_wrapper();
@@ -29,7 +31,7 @@ public:
 };
 
 cli_wrapper::cli_wrapper() {
-
+    board.SetZobristTables(&zobrist_tables);
 }
 
 
@@ -87,12 +89,12 @@ int cli_wrapper::doit() {
     magicBitboards.bishopMagicBitboard = magic_search.GenerateBishopBitboardSet(regenerateMagics);
 
     lookupTables = magic_search.GenerateLookupTables();
-
+    
     board.SetMagicBitboards(&magicBitboards);
     board.SetLookupTables(&lookupTables);
 
-    std::vector<MoveEval> PV;
-    searcher.FindBestMove(board, PV);
+    std::vector<Move> PV;
+    float score = searcher.FindBestMove(board, PV);
 
     // std::cout << board << std::endl;
     //
@@ -108,7 +110,7 @@ int cli_wrapper::doit() {
     if (mateIn) {
         int mate_in = 0;
         bool thisPlayer = true;
-        for (MoveEval ME : PV) {
+        for (Move M : PV) {
             mate_in += thisPlayer;
             thisPlayer = !thisPlayer;
         }
@@ -120,18 +122,15 @@ int cli_wrapper::doit() {
     }
 
     if (showMoves) {
-        for (MoveEval& ME : PV) {
-            std::cout << ME.move << std::endl;
+        for (Move& M : PV) {
+            std::cout << M << std::endl;
         }
+        std::cout << PV[0] << " score: " << score << std::endl;
     }
 
     if (showBestMove && !PV.empty()) {
-        std::cout << PV[0].move << std::endl;
+        std::cout << PV[0] << std::endl;
     }
-
-    #ifdef DEBUG
-    std::cout << node_counter << " nodes evaluated" << std::endl;
-    #endif
 
     return 0;
 }

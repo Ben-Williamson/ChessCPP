@@ -122,6 +122,8 @@ public:
 
     bool BlackKingInCheck();
 
+    bool GetWhiteToMove();
+
     void MakeMove(Move move);
 
     void UndoMove();
@@ -154,7 +156,7 @@ public:
 
     void SetZobristTables(Zobrist* zobrist_tables);
 
-    int PieceValues();
+    int PieceValues() const;
 };
 
 

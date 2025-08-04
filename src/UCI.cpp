@@ -141,16 +141,23 @@ bool UCI_Wrapper::ProcessCommand(std::string command) {
 		// Can currently just return the best move,
 		// and not think very hard.
 
-		std::vector<MoveEval> PV;
-		MoveList moves;
-		searcher.FindBestMove(board, PV);
+		std::vector<Move> PV;
+		//MoveList moves;
+		float score = searcher.FindBestMove(board, PV);
+		Move bestMove = PV[0];
 
-		if (PV[0].move.promotionPiece) {
-			std::cout << "bestmove " << PV[0].move.CoordsToBoardSquares() << PV[0].move.promotionPiece << std::endl;
+		if (bestMove.promotionPiece) {
+			std::cout << "bestmove " << bestMove.CoordsToBoardSquares() << bestMove.promotionPiece << std::endl;
 		}
 		else {
-			std::cout << "bestmove " << PV[0].move.CoordsToBoardSquares() << std::endl;
+			std::cout << "bestmove " << bestMove.CoordsToBoardSquares() << std::endl;
 		}
+		//info depth 2 score cp 214 time 1242 nodes 2124 nps 34928 pv e2e4 e7e5 g1f3
+		 
+		std::cout << "info depth 6 score cp " << score << " pv";
+		for (Move& M : PV) std::cout << ' ' << M.CoordsToBoardSquares();
+		std::cout << std::endl;
+
 		//std::cout << "info string total moves:" << board.GetAllMoves(moves)  << " best:" << PV[0].move << std::endl;
 
 		return true;

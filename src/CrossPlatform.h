@@ -34,6 +34,26 @@ namespace portable {
 #   error "portable::popcount is not supported on this compiler"
 #endif
     }
+
+    inline void* aligned_alloc(size_t alignment, size_t size) {
+#if defined(__clang__) || defined(__GNUC__)
+        return std::aligned_alloc(alignment, size);
+#elif defined(_MSC_VER) && defined(_M_X64)
+        return _aligned_malloc(size, alignment);
+#else
+#   error "portable::popcount is not supported on this compiler"
+#endif
+    }
+
+    inline void aligned_free(void* memblock) {
+#if defined(__clang__) || defined(__GNUC__)
+        return std::free(memblock);
+#elif defined(_MSC_VER) && defined(_M_X64)
+        return _aligned_free(memblock);
+#else
+#   error "portable::popcount is not supported on this compiler"
+#endif
+    }
 }
 
 #endif

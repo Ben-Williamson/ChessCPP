@@ -15,9 +15,5 @@
 
 // #define DEBUG
 
-#ifdef DEBUG
-inline int node_counter = 0;
-#endif
-
 
 #endif //PROFILER_H

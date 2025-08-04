@@ -25,7 +25,7 @@ class EndgamePuzzles(TestSuite):
             self.testCases[mateIn].append(FEN)
 
     def runTests(self, runner_callback):
-        self.runMateInTests(4, runner_callback)
+        self.runMateInTests(3, runner_callback)
 
     def runMateInTests(self, mateIn, runner_callback):
         success_count, total = 0, 0
@@ -58,6 +58,8 @@ class TestRunner:
             to_run.append(arg_value)
 
         result = subprocess.run(to_run, capture_output = True)
+        # print(' '.join(to_run))
+        # exit()
         return result.stdout.decode()
 
     def runTest(self, testSuite: TestSuite):

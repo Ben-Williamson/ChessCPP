@@ -31,7 +31,11 @@ add_executable(CLI_Chess main.cpp
         PerformantBoard.cpp
         PerformantBoard.h
         CrossPlatform.h
- "TranspositionTable.cpp")
+        TranspositionTable.h
+        TranspositionTable.cpp
+        Zobrist.h
+        Zobrist.cpp
+)
 
 add_executable(Chess UCI.cpp
         Board.cpp
@@ -53,13 +57,19 @@ add_executable(Chess UCI.cpp
         Zobrist.h
         Zobrist.cpp
         Random.h
- "TranspositionTable.cpp")
+        TranspositionTable.h
+        TranspositionTable.cpp
+)
 
 add_executable(MagicSearch magics/main.cpp
         magics/MagicSearch.cpp
         magics/MagicSearch.h
         CrossPlatform.h
- "TranspositionTable.cpp")
+        PerformantBoard.h
+        PerformantBoard.cpp
+        TranspositionTable.h
+        TranspositionTable.cpp
+)
 
 add_executable(BoardTest board_test/main.cpp
         Board.cpp
@@ -69,7 +79,34 @@ add_executable(BoardTest board_test/main.cpp
         magics/MagicSearch.cpp
         magics/MagicSearch.h
         CrossPlatform.h
- "TranspositionTable.cpp")
+        TranspositionTable.h
+        TranspositionTable.cpp
+)
+
+add_executable(TranspositionTest TranspositionTests/TranspositionTests.cpp
+        Board.cpp
+        Board.h
+        Search.cpp
+        Search.h
+        TreeDebug.cpp
+        TreeDebug.h
+        Profiler.h
+        MoveList.cpp
+        MoveList.h
+        Move.h
+        magics/MagicSearch.cpp
+        magics/MagicSearch.h
+        PerformantBoard.cpp
+        PerformantBoard.h
+        CrossPlatform.h
+        UCI.h
+        Zobrist.h
+        Zobrist.cpp
+        Random.h
+        TranspositionTable.h
+        TranspositionTable.cpp
+
+)
 
 target_link_libraries(Chess PUBLIC TracyClient)
 
